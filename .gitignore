@@ -1,0 +1,6 @@
+node_modules/
+config.json
+history.json
+.env
+*.log
+/tmp/
