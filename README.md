@@ -88,7 +88,7 @@ Semua perintah dapat ditambahkan opsi `--json` untuk output terstruktur.
 ## Generate QRIS
 
 <div align="center">
-  <img src="qris-payment-flow.gif" alt="QRIS payment flow" width="720">
+  <img src="generate-qris.gif" alt="QRIS payment flow" width="720">
 </div>
 
 QRIS dinamis digunakan ketika nominal sudah ditentukan. QR yang dihasilkan mengandung jumlah yang harus dibayar. Customer scan dan langsung membayar tanpa perlu memasukkan nominal.
