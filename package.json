@@ -1,0 +1,53 @@
+{
+  "name": "gopaymerchant",
+  "version": "2.0.0",
+  "description": "Accept QRIS payments, manage transactions, process refunds, and receive webhook notifications — all from your terminal via Midtrans Snap API.",
+  "main": "index.js",
+  "type": "commonjs",
+  "bin": {
+    "gopay": "index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "gopay",
+    "gobiz",
+    "qris",
+    "midtrans",
+    "payment-gateway",
+    "indonesia",
+    "cli",
+    "qr-code",
+    "payment",
+    "merchant",
+    "e-wallet",
+    "dana",
+    "ovo",
+    "gopay",
+    "shopeepay"
+  ],
+  "author": "Ibra Ramdan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IbraDecode/gopaymerchant.git"
+  },
+  "bugs": {
+    "url": "https://t.me/ibracode"
+  },
+  "homepage": "https://t.me/ibracode",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "index.js",
+    "src/",
+    "LICENSE",
+    "README.md"
+  ],
+  "dependencies": {
+    "axios": "^1.6.0",
+    "qrcode": "^1.5.4"
+  }
+}

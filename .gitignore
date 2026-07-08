@@ -1,0 +1,7 @@
+node_modules/
+config.json
+history.json
+qris_static.json
+.env
+*.log
+/tmp/
