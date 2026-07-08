@@ -1,23 +1,35 @@
 <p align="center">
-  <img src="logo.png" alt="GoPay Merchant CLI" width="100">
+  <img src="logo.png" alt="GoPay Merchant CLI" width="80">
 </p>
 
 <h1 align="center">GoPay Merchant CLI</h1>
 
 <p align="center">
-  CLI untuk menerima pembayaran QRIS dari terminal.<br>
-  Didukung Midtrans Snap API. Dibayar via DANA, GoPay, OVO, ShopeePay, LinkAja.
+  Toolkit CLI untuk mengelola pembayaran merchant langsung dari terminal.<br>
+  Mendukung QRIS, Payment Link, transaksi, refund, webhook, dan utilitas merchant lainnya.
 </p>
 
-<br>
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/node-%3E%3D18-339933?style=flat-square&logo=nodedotnet&logoColor=white" alt="Node"></a>
+  <a href="#"><img src="https://img.shields.io/badge/license-MIT-3DA639?style=flat-square" alt="License"></a>
+  <a href="https://t.me/ibracode"><img src="https://img.shields.io/badge/telegram-t.me%2Fibracode-22D3EE?style=flat-square&logo=telegram&logoColor=white" alt="Telegram"></a>
+</p>
 
 ---
 
-## Tentang
+## Ringkasan
 
-GoPay Merchant CLI adalah tool terminal yang memungkinkan merchant menerima pembayaran QRIS secara instan. Jalankan satu perintah, QRIS langsung tergenerate — customer scan dan bayar.
+GoPay Merchant CLI adalah antarmuka terminal untuk merchant yang ingin menerima dan mengelola pembayaran digital tanpa harus membuka dashboard atau website. Cukup jalankan satu perintah, QRIS langsung tersedia.
 
-Tool ini berguna untuk developer yang perlu integrasi QRIS ke POS, e-commerce, bot Telegram/WhatsApp, atau sistem pembayaran otomatis lainnya.
+Tool ini mencakup:
+- Generate QRIS dinamis dan statis
+- Payment Link untuk pembayaran jarak jauh
+- Monitoring dan pengecekan status transaksi
+- Refund dan pembatalan transaksi
+- Webhook server untuk notifikasi real-time
+- Riwayat dan mutasi saldo
+
+Target pengguna: developer yang perlu mengintegrasikan pembayaran QRIS ke dalam sistem POS, e-commerce, bot, atau platform mereka sendiri.
 
 ---
 
@@ -29,107 +41,136 @@ cd gopaymerchant
 npm install
 ```
 
-Butuh Node.js 18+. Jalan di Linux, macOS, Windows (via WSL/Git Bash).
+Persyaratan: Node.js 18 atau lebih baru. Tersedia untuk Linux, macOS, dan Windows (via WSL atau Git Bash).
 
 ---
 
-## Menjalankan Aplikasi
+## Getting Started
 
-Tanpa argumen, tool akan masuk ke menu interaktif:
+<div align="center">
+  <img src="getting-started.gif" alt="Getting started" width="720">
+</div>
 
-```bash
-node .
-```
+Proses memulai:
 
-Atau jalankan perintah langsung:
+1. Clone repository dan jalankan `npm install`
+2. Jalankan aplikasi dengan `node .`
+3. Login menggunakan akun merchant
+4. Generate QRIS dengan `node . qris 50000`
+5. Customer scan dan bayar
 
-```bash
-node . login you@email.com yourpassword
-```
+Setelah login pertama, konfigurasi tersimpan secara lokal. Aplikasi siap digunakan tanpa perlu login ulang pada sesi berikutnya.
 
 ---
 
-## Login
+## Struktur CLI
 
-Sebelum bisa generate QRIS, tool perlu terhubung dengan akun merchant. Jalankan:
+| Perintah | Fungsi |
+|----------|--------|
+| `login` | Login ke akun merchant |
+| `qris` | Generate QRIS dinamis |
+| `qris static` | Generate QRIS statis |
+| `paylink` | Membuat payment link |
+| `status` | Cek status transaksi |
+| `monitor` | Pantau transaksi real-time |
+| `cancel` | Batalkan transaksi pending |
+| `expire` | Paksa kadaluwarsa |
+| `refund` | Refund transaksi settlement |
+| `balance` | Cek mutasi saldo |
+| `tx` | Riwayat transaksi |
+| `listen` | Menjalankan webhook server |
+| `config` | Lihat konfigurasi |
 
-```bash
-node . login you@email.com yourpassword
-```
-
-Perintah ini akan login, mengambil konfigurasi payment gateway, lalu menyimpannya ke `config.json`.
-
-Alternatif, bisa pake OTP kalo lupa password:
-
-```bash
-node . login --otp 6281234567890
-```
-
-Atau langsung set Server Key via environment variable:
-
-```bash
-export GOPAY_SERVER_KEY="Mid-server-xxx"
-```
+Semua perintah dapat ditambahkan opsi `--json` untuk output terstruktur.
 
 ---
 
 ## Generate QRIS
 
-Setelah login, QRIS bisa langsung digenerate.
+<div align="center">
+  <img src="qris-payment-flow.gif" alt="QRIS payment flow" width="720">
+</div>
 
-QRIS dinamis — nominal sudah termasuk di dalam QR. Customer scan langsung bayar.
+QRIS dinamis digunakan ketika nominal sudah ditentukan. QR yang dihasilkan mengandung jumlah yang harus dibayar. Customer scan dan langsung membayar tanpa perlu memasukkan nominal.
 
 ```bash
 node . qris 50000
 ```
 
-<div align="center">
-  <img src="getting-started.gif" alt="Generate QRIS" width="720">
-</div>
-
-**Flow:**
-
-```
-Generate QRIS  →  Customer scan pake DANA/GoPay/OVO/dll
-      ↓
-Midtrans proses pembayaran
-      ↓
-Status berubah jadi "settlement"
+```mermaid
+flowchart LR
+  A[Generate QRIS] --> B[Customer scan]
+  B --> C[Payment processing]
+  C --> D[Settlement]
 ```
 
-QRIS juga otomatis disimpan ke `/tmp/gopay_qris_*.png`.
+Output:
 
-QRIS statis — tanpa nominal, customer isi sendiri:
+```
+  ID Pesanan : QRIS-1783336749362
+  Jumlah     : Rp 50.000
+  Status     : pending
+  Kadaluarsa : 15 menit
+  Gambar QR  : https://.../qr-code
+```
+
+Gambar QR otomatis tersimpan di `/tmp/gopay_qris_*.png`.
+
+**QRIS Statis:**
 
 ```bash
 node . qris static
 ```
 
-QRIS + webhook — dapet notifikasi pas dibayar:
+QR tanpa nominal. Customer memasukkan jumlah sendiri. Cocok untuk display di kasir atau meja.
+
+**Status transaksi:**
+
+| Status | Keterangan |
+|--------|-----------|
+| pending | Menunggu pembayaran |
+| settlement | Pembayaran diterima |
+| cancel | Dibatalkan oleh merchant |
+| expire | Kadaluwarsa |
+| refund | Dana dikembalikan |
+| deny | Ditolak oleh penyedia |
+
+**QRIS + Webhook:**
 
 ```bash
-node . qris 50000 https://serverlo.com/webhook
+node . qris 50000 https://domainkamu.com/webhook
 ```
 
----
-
-## Customer Melakukan Pembayaran
-
-Customer scan QRIS pake aplikasi dompet digital atau mobile banking yang support QRIS.
-
-Setelah bayar, status transaksi otomatis berubah dari `pending` jadi `settlement`. Merchant bisa ngecek status kapan aja.
+Notifikasi dikirim ke URL yang ditentukan saat status berubah.
 
 ---
 
-## Cek Status Transaksi
+## Payment Link
 
-Cek status transaksi berdasarkan Order ID:
+Payment Link membuat URL pembayaran yang bisa dishare. Setiap link memiliki QR code sendiri. Link dapat dikirim melalui WhatsApp, email, atau media sosial.
+
+```bash
+node . paylink 50000
+```
+
+```
+  Link Bayar : https://example.com/payment-link/...
+  QR Code    : https://example.com/v1/payment-links/.../qr-code
+```
+
+Link berlaku 60 menit dan dapat digunakan satu kali.
+
+Kapan digunakan: invoice pelanggan, order WhatsApp, pembayaran jarak jauh.
+
+---
+
+## Transaksi
+
+### Cek Status
 
 ```bash
 node . status QRIS-1783336749362
 ```
-
-Output:
 
 ```
   Status     : settlement
@@ -139,169 +180,95 @@ Output:
   Waktu      : 2026-07-06 19:21:32
 ```
 
-Status yang mungkin: `pending`, `settlement` (lunas), `cancel`, `expire`, `refund`, `deny`.
+### Monitor
 
-Bisa juga pantau real-time dengan progress bar:
+Memantau transaksi secara real-time. Aplikasi akan berhenti otomatis saat status berubah menjadi settlement, cancel, expire, atau deny.
 
 ```bash
 node . monitor QRIS-1783336749362
 ```
 
-Tool akan berhenti otomatis begitu status berubah jadi `settlement`, `expire`, `cancel`, atau `deny`.
-
----
-
-## Payment Link
-
-Buat link bayar yang bisa dishare via WhatsApp, email, atau social media. Setiap link punya QR code sendiri.
+### Riwayat
 
 ```bash
-node . paylink 50000
+node . tx 7
 ```
 
-```
-  ID Pesanan : PAYLINK-1783342107764
-  Link Bayar : https://app.midtrans.com/payment-links/...
-  QR Code    : https://api.midtrans.com/v1/payment-links/.../qr-code
-```
-
-Link berlaku 60 menit, sekali pakai.
+Menampilkan daftar transaksi dalam periode tertentu.
 
 ---
 
 ## Refund
 
-Refund transaksi yang sudah settlement. Dana dikembalikan ke sumber pembayaran customer.
+<div align="center">
+  <img src="refund.gif" alt="Refund" width="600">
+</div>
+
+Refund digunakan untuk mengembalikan dana transaksi yang sudah settlement. Dana dikembalikan ke sumber pembayaran asal.
 
 ```bash
 node . refund QRIS-1783336749362 50000
 ```
 
-<div align="center">
-  <img src="refund.gif" alt="Refund" width="600">
-</div>
+Syarat: transaksi berstatus settlement.
 
-**Flow refund:**
-
-```
-Cek status transaksi  →  Status "settlement"
-        ↓
-Jalankan refund      →  node . refund QRIS-xxx 50000
-        ↓
-Dana dikembalikan    →  Status berubah jadi "refund"
+```mermaid
+flowchart LR
+  A[Cek status] --> B[Settlement?]
+  B -->|Ya| C[Jalankan refund]
+  B -->|Tidak| D[Selesai]
+  C --> E[Status: refund]
 ```
 
 ---
 
 ## Webhook
 
-Webhook server untuk menerima notifikasi pembayaran secara real-time. Cocok dipasang di server backend.
+Webhook server menerima notifikasi pembayaran secara real-time. Berguna untuk sistem yang membutuhkan deteksi pembayaran instan tanpa polling berkala.
 
 ```bash
 node . listen 3000
 ```
 
-Server akan menerima POST di `/webhook`. Setiap notifikasi diverifikasi signature-nya menggunakan SHA-512 — memastikan notifikasi benar-benar dari Midtrans.
+Server berjalan di endpoint `/webhook`. Setiap notifikasi diverifikasi menggunakan signature SHA-512 untuk memastikan keasliannya.
 
 Kombinasikan dengan QRIS:
 
 ```bash
-node . qris 50000 https://serverlo.com:3000/webhook
+node . qris 50000 https://domainkamu.com:3000/webhook
 ```
 
-<div align="center">
-  <img src="qris-payment-flow.gif" alt="Payment Flow" width="720">
-</div>
-
-Payload notifikasi yang dikirim Midtrans:
-
-```json
-{
-  "transaction_status": "settlement",
-  "payment_type": "qris",
-  "order_id": "QRIS-1783336749362",
-  "gross_amount": "50000.00",
-  "issuer": "dana"
-}
-```
-
----
-
-## Balance
-
-Cek mutasi saldo 30 hari terakhir:
-
-```bash
-node . balance
-```
-
-Output:
-
-```
-  Periode    : 2026-06-06 s/d 2026-07-06
-  Saldo Awal : Rp 1.081
-  Saldo Akhir: Rp 501
-```
-
-Berguna untuk rekonsiliasi pembayaran.
-
----
-
-## Daftar Perintah
-
-| Perintah | Argumen | Keterangan |
-|----------|---------|-----------|
-| `login` | `<email> <password>` | Login akun merchant |
-| `login --otp` | `<phone>` | Login via OTP |
-| `qris` | `<amount> [webhook_url]` | Generate QRIS dinamis |
-| `qris static` | — | QRIS statis (tanpa nominal) |
-| `paylink` | `<amount>` | Payment link + QR code |
-| `status` | `<order_id>` | Cek status transaksi |
-| `monitor` | `<order_id>` | Pantau sampai settlement |
-| `cancel` | `<order_id>` | Batalkan transaksi |
-| `expire` | `<order_id>` | Paksa expire |
-| `refund` | `<order_id> <amount>` | Refund transaksi |
-| `balance` | — | Mutasi saldo 30 hari |
-| `tx` | `[days]` | Riwayat transaksi |
-| `listen` | `[port]` | Webhook server (default 3000) |
-| `config` | — | Lihat konfigurasi |
-
-Semua perintah bisa ditambah `--json` untuk output JSON.
+Kapan digunakan: e-commerce, top-up otomatis, sistem deposit, atau skenario lain yang membutuhkan notifikasi instan.
 
 ---
 
 ## Konfigurasi
 
-Konfigurasi disimpan di `config.json`. File ini otomatis diabaikan oleh git.
+Konfigurasi disimpan dalam file `config.json` yang dibuat otomatis saat login. File ini berisi data autentikasi yang diperlukan.
 
-Untuk production, disarankan pake environment variable:
-
-```bash
-export GOPAY_SERVER_KEY="Mid-server-xxx"
-```
+File konfigurasi otomatis diabaikan oleh git melalui `.gitignore`.
 
 ---
 
 ## FAQ
 
-**Q: Apa bedanya QRIS sama Payment Link?**  
-A: QRIS buat scan langsung (POS/tatap muka). Payment Link buat dishare via chat/email dan punya halaman bayar sendiri.
+**Apa yang dibutuhkan untuk menggunakan tool ini?**  
+Node.js 18+, akun merchant yang terdaftar, dan akses terminal.
 
-**Q: Bisa dipake production?**  
-A: Udah diuji dengan transaksi real. Semua fitur (QRIS, refund, webhook) berfungsi.
+**Apakah bisa digunakan untuk production?**  
+Tool ini dirancang untuk digunakan pada lingkungan pengembangan maupun produksi sesuai kebutuhan integrasi.
 
-**Q: Butuh akun merchant?**  
-A: Iya. Tapi pendaftarannya gratis melalui aplikasi GoBiz.
+**Apa perbedaan QRIS dan Payment Link?**  
+QRIS untuk scan langsung oleh customer. Payment Link untuk dibagikan melalui chat atau email.
 
-**Q: Ada contoh output JSON?**  
-A: Semua perintah support `--json`. Contoh: `node . qris 50000 --json` akan output JSON, bukan teks.
+**Apa itu status settlement?**  
+Status yang menandakan pembayaran telah berhasil diterima dan dana masuk.
+
+**Apakah source code bisa dimodifikasi?**  
+Source code lengkap diberikan setelah pembelian.
 
 ---
 
-<br>
-
 <p align="center">
   <a href="https://t.me/ibracode">t.me/ibracode</a>
-  <br><br>
-  <sub>&copy; 2026 Ibra Ramdan</sub>
 </p>
