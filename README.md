@@ -5,8 +5,8 @@
 <h1 align="center">GoPay Merchant CLI</h1>
 
 <p align="center">
-  <b>Terima pembayaran QRIS langsung dari terminal.</b><br>
-  Generate QRIS, payment link, refund, webhook — semua dalam satu CLI.
+  <b>Terminal payment gateway untuk merchant Indonesia.</b><br>
+  Generate QRIS, payment link, refund, webhook — semua dari terminal.
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 ## Fitur
 
 - Generate QRIS dinamis (nominal langsung, customer scan & bayar)
-- QRIS statis (customer isi nominal sendiri)
+- QRIS statis (tanpa nominal, customer isi sendiri)
 - Payment link + QR code otomatis
 - Refund transaksi
 - Webhook notifikasi real-time
@@ -39,8 +39,10 @@
 - Cancel / expire transaksi
 - Riwayat transaksi
 - Output JSON buat integrasi
+- Menu bilingual EN/ID
+- Webhook server built-in
 
-Semua bisa dibayar pake DANA, GoPay, OVO, ShopeePay, LinkAja.
+Semua pembayaran diterima via DANA, GoPay, OVO, ShopeePay, LinkAja.
 
 ---
 
@@ -54,31 +56,16 @@ Semua bisa dibayar pake DANA, GoPay, OVO, ShopeePay, LinkAja.
 
 ---
 
-## Yang Didapet
+## Kenapa Pilih Ini?
 
-- Source code lengkap CLI
-- 16 perintah siap pakai
-- Bisa dimodif sesuai kebutuhan
-- Dukungan via Telegram
-- Update fitur
-
----
-
-## Cara Pake
-
-```bash
-npm install
-node . login
-node . qris 50000
-```
-
-Tiga baris. QRIS siap dipake.
+- Source code lengkap, bisa dimodif
+- Tinggal clone, install, jalanin
+- Udah di-test dengan transaksi real
+- Dukungan langsung via Telegram
 
 ---
 
-## Ada Yang Ingin Ditanyakan?
-
-<BR>
+<br>
 
 <div align="center">
   <a href="https://t.me/ibracode">
